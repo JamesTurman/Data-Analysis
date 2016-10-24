@@ -16,14 +16,17 @@ nba <- c(sal$nba)
 #format data into groups
 tot <- c(nfl,mlb,nba)
 n <- rep(15,3)
-group <- rep(1:3,n)
+group <- rep(c('nfl','mlb','nba'),n)
 
 #summary stats
 tmp = function(x) c(sum=sum(x), mean = mean(x), var=var(x), sd = sd(x),
                     n = length(x), median=median(x), mode = mode(x), kurtosis=kurtosis(x),
                     skew = skewness(x), max = max(x), min = min(x), range = max(x)-min(x), 
-                    quartiles = quantile(x),iqr =IQR(x), shapiro=shapiro.test(x)$statistic[1])
+                    quartiles = quantile(x),iqr =IQR(x), shapiro=shapiro.test(x))
 tapply(tot,group,tmp)
+
+#qq plot to verify results of shapiro test
+qqplot(tot)
 
 #anova
 data <- data.frame(tot=tot, group = factor(group))

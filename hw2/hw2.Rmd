@@ -10,8 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ## R Markdown
-
-
+This statistical analysis is done to find if there is a difference in pay between the top 15 salaries in the NFL (National Football League), MLB (Major League Baseball) and the NBA (National Basketball Association). I perform below an ANOVA to test my hypothesis that there is a statistically significant difference between the average pay of the top 15 salaries in each sport.  
 ```{r cars}
 setwd("C:/Users/jaturman/Desktop/data analysis/ops804")
 sal <- read.csv("salary.csv")
@@ -31,14 +30,17 @@ nba <- c(sal$nba)
 #format data into groups
 tot <- c(nfl,mlb,nba)
 n <- rep(15,3)
-group <- rep(1:3,n)
+group <- rep(c('nfl','mlb','nba'),n)
 
 #summary stats
 tmp = function(x) c(sum=sum(x), mean = mean(x), var=var(x), sd = sd(x),
                     n = length(x), median=median(x), mode = mode(x), kurtosis=kurtosis(x),
                     skew = skewness(x), max = max(x), min = min(x), range = max(x)-min(x), 
-                    quartiles = quantile(x),iqr =IQR(x), shapiro=shapiro.test(x)$statistic[1])
+                    quartiles = quantile(x),iqr =IQR(x), shapiro=shapiro.test(x))
 tapply(tot,group,tmp)
+
+#qq plot to verify results of shapiro test
+qqnorm(tot)
 
 #anova
 data <- data.frame(tot=tot, group = factor(group))
