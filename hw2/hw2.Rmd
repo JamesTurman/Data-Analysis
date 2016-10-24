@@ -3,6 +3,7 @@ title: "Sports Pay Comparison"
 author: "Jim Turman"
 date: "October 24, 2016"
 output: html_document
+theme: lumen
 ---
 
 ```{r setup, include=FALSE}
