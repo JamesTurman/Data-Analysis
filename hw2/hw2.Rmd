@@ -1,18 +1,17 @@
 ---
 title: "Sports Pay Comparison"
 author: "Jim Turman"
-date: "October 24, 2016"
-output: html_document
-theme: lumen
+date: "October 27, 2016"
+output: pdf_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+## Background
 This statistical analysis is done to find if there is a difference in pay between the top 15 salaries in the NFL (National Football League), MLB (Major League Baseball) and the NBA (National Basketball Association). I perform below an ANOVA to test my hypothesis that there is a statistically significant difference between the average pay of the top 15 salaries in each sport.  
-```{r cars}
+```{r pressure, include=FALSE}
 setwd("C:/Users/jaturman/Desktop/data analysis/ops804")
 sal <- read.csv("salary.csv")
 
@@ -33,40 +32,61 @@ tot <- c(nfl,mlb,nba)
 n <- rep(15,3)
 group <- rep(c('nfl','mlb','nba'),n)
 
-#summary stats
-tmp = function(x) c(sum=sum(x), mean = mean(x), median=median(x), mode = mode(x), var=var(x), sd = sd(x),
-                    n = length(x), kurtosis=kurtosis(x),skew = skewness(x), max = max(x), min = min(x), range = max(x)-min(x), 
-                    quartiles = quantile(x),iqr =IQR(x))
-tapply(tot,group,tmp)
-
-#shapiro test for normality
-shapiro.test(tot)
-
-#qq plot to verify results of shapiro test
-qqnorm(tot)
-
 #anova
 data <- data.frame(tot=tot, group = factor(group))
 fit <- lm(tot~group, data)
 sal.aov <- aov(fit)
 sal.aov.summary <- summary(sal.aov)
-print(sal.aov.summary)
 
 #perform Tukey-Kramer
 sal.tukey <- TukeyHSD(sal.aov)
-print(sal.tukey)
 
 #perform Levene's test
 sal.lev <- leveneTest(tot~group, data = data)
+```
+
+## Summary Statistics 
+Below are the summary statistics for the three major sports in the United States, the NFL, NBA and MLB.  
+```{r summary, echo=FALSE}
+#summary stats
+tmp = function(x) c(sum=sum(x), mean = mean(x), median=median(x),
+                    mode = mode(x), var=var(x), sd = sd(x),
+                    n = length(x), kurtosis=kurtosis(x),
+                    skew = skewness(x), max = max(x), min = min(x),
+                    range = max(x)-min(x),quartiles = quantile(x),
+                    iqr =IQR(x))
+tapply(tot,group,tmp)
+
+```
+## Shapiro-Wilk Test
+Below is the Shapiro-Wlik test for normality. To test the hypothesis that the data is normally distributed I am using a .05 level of significance. If the P value is less than .05 then the null hypothesis that the data are normally distributed will be rejected. Because my P value is 1.474e-06 I must reject the null hypothesis and conclude that my data are not normally distributed. To confirm this in a visual below the Shapiro-Wilk results is a plot showing the data points according to a standard normal distribution curve. If they were normally distributed they would look like a bell curve centered on the zero point of the x axis.    
+```{r qqnorm, echo=FALSE}
+#qq plot to verify results of shapiro test
+shapiro.test(tot)
+qqnorm(tot)
+```
+
+## Anova Hypothesis Test
+This test is to decide whether or not there is a statistically significant difference between the average of the top 15 salaries of the three sports leagues. For this test I again use the standard .05 level of significance to determing whether or not to reject the null hypothesis that there is no significant difference between the average top 15 salary's of the different leagues. Because my P value is .298 > .05 the data does not suggest that there is a statistically signifcant difference between the average top salary based on league.
+```{r anova, echo=FALSE}
+#anova results
+print(sal.aov.summary)
+```
+
+## Tukey Post Hoc Test
+This test is to determine which means may have a difference between each other. The left hand column shows the two leagues that are being compared and the right hand shows the p value. The lower the P value the more significant the difference between the means of the leagues. I use a significance value of .05 to determine if the difference is statistically significant. This test shows that the least difference between averages is NFL to MLB and the largest difference is between NBA and MLB. Though this is interesting the P values are still greater than .05 so I cannot say that there is a statistically significant difference between the average top 15 salaries of these leagues.
+```{r tukey, echo=FALSE}
+#tukey kramer results
+print(sal.tukey)
+plot(sal.tukey)
+```
+
+## Levene's Test
+This test is used to determine the homogeneity of variance for the three leagues. I use an alpha value of .05 to determing the level of significance. If P is less than .05 then I can conclude that I am 95% certain that the variance between the leagues salaries is significantly different. The P value for the group is .1229 > .05 so I cannot say that there is a statistically significant difference in variance between the leagues. 
+```{r levine, echo=FALSE}
+#levine test results
 print(sal.lev)
 ```
 
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(sal.aov)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+## Conclusion
+Through the findings of the tests above I can conclude that there is no statistically significant difference between the average salaries of the top 15 players in each league. What this really means is that the top 15 salaries of the NFL, NBA and MLB are very similar to each other. If people are going to chose between sports to play professionally simply based on pay, there is no real difference for the highest paid athletes. To find the difference for the average pay of athletes in each league the sample sizes could be expanded for each league, because of the difficulty of obtaining that data I stuck with the top 15 salaries.

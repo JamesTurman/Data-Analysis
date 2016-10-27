@@ -81,6 +81,7 @@ print(sal.aov.summary)
 #perform Tukey-Kramer
 sal.tukey <- TukeyHSD(sal.aov)
 print(sal.tukey)
+plot(sal.tukey)
 
 #perform Levene's test
 sal.lev <- leveneTest(tot~group, data = data)
