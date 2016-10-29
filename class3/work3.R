@@ -78,5 +78,8 @@ fuel.m2.me
 fuel.m2.mape
 fuel.m2.rmse
 
+################ F test #########################
 
+f <- lm(GPM~WT, data = fuel)
+summary(f)
 
