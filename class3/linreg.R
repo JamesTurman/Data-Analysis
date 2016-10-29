@@ -47,14 +47,12 @@ x <- FuelEff[,2:7] # Independent variables
 y <- FuelEff[,1] # Dependent variables
 # Model selection by exhaustive search
 FuelEff.out <- summary(regsubsets(x, y, nbest = 2, nvmax = ncol(x)))
-FuelEff.regtab <- cbind(out$which, out$rsq, out$adjr2, out$cp) # Stich things
-together
+FuelEff.regtab <- cbind(FuelEff.out$which,FuelEff.out$rsq, FuelEff.out$adjr2, FuelEff.out$cp) # Stich things together
 colnames(FuelEff.regtab) <- c("(Intercept)","WT","DIS","NC", "HP", "ACC", "ET",
                               "R-Sq", "R-Sq (adj)", "Cp") # Add header
 print(FuelEff.regtab)
 ## Create a second model
-FuelEff.m2 <- lm(GPM ~ WT, data = FuelEff) # Create a second model with just
-weight
+FuelEff.m2 <- lm(GPM ~ WT, data = FuelEff) # Create a second model with just weight
 FuelEff.m2.summary <- summary(FuelEff.m2) # Show results
 print(FuelEff.m2.summary)
 ## Getting the confident intervalls
@@ -155,12 +153,9 @@ p5 <- ggplot(FuelEff.f, aes(x =.hat, y = .stdresid)) +
   ggtitle("Residual vs Leverage Plot") +
   scale_size_continuous("Cook's Distance", range = c(1,5)) +theme(legend.position="bottom")
 ## Save Plots
-ggsave("graphs/linearityAssumption.pdf", p1)
-ggsave("graphs/normalityAssumption.pdf", p2)
-ggsave("graphs/equalVarianceAssumptions.pdf", p3)
-ggsave("graphs/outlierInfluance1Assumptions.pdf", p4)
-ggsave("graphs/outlierInfluance2Assumptions.pdf", p4)
-
-
-
+#ggsave("graphs/linearityAssumption.pdf", p1)
+#ggsave("graphs/normalityAssumption.pdf", p2)
+#ggsave("graphs/equalVarianceAssumptions.pdf", p3)
+#ggsave("graphs/outlierInfluance1Assumptions.pdf", p4)
+#ggsave("graphs/outlierInfluance2Assumptions.pdf", p4)
 
