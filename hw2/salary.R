@@ -1,4 +1,3 @@
-setwd("C:/Users/jaturman/Desktop/data analysis/ops804")
 sal <- read.csv("salary.csv")
 
 library(reshape2)

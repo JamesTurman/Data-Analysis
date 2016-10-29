@@ -12,7 +12,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Background
 This statistical analysis is done to find if there is a difference in pay between the top 15 salaries in the NFL (National Football League), MLB (Major League Baseball) and the NBA (National Basketball Association). I perform below an ANOVA to test my hypothesis that there is a statistically significant difference between the average pay of the top 15 salaries in each sport.  
 ```{r pressure, include=FALSE}
-setwd("C:/Users/jaturman/Desktop/data analysis/ops804")
 sal <- read.csv("salary.csv")
 
 library(reshape2)
