@@ -27,8 +27,7 @@ plot(GPM ~ HP, data = FuelEff)
 plot(GPM ~ ACC, data = FuelEff)
 plot(GPM ~ ET, data = FuelEff)
 # Remove the MPG rate, since we are going to use GPM (gallons / 100 miles)
-# This is because has a linear relationship between the response and the
-predictors
+# This is because has a linear relationship between the response and thepredictors
 FuelEff <- FuelEff[-1] # Remove the first column
 head(FuelEff) # Show data
 # Regression analyis
