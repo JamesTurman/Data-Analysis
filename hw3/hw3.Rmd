@@ -1,0 +1,158 @@
+---
+title: "Linear Regression"
+author: "Jim Turman"
+date: "November 3, 2016"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+library(tufte)
+# invalidate cache when the tufte version changes
+knitr::opts_chunk$set(tidy = FALSE, cache.extra = packageVersion('tufte'))
+options(htmltools.dir.version = FALSE)
+```
+
+# Introduction
+This report is a Linear Regression predicting the price of a Toyota Corolla given certain variables.
+
+## Descriptive Statistics
+```{r desc, include=FALSE}
+setwd("C:/Users/jaturman/Desktop/data analysis/ops804/course work/hw3")
+toy <- read.csv("ToyotaCorolla.csv")
+
+library(leaps) # Exhaustive search for the best subsets of the variables in x for predicting y
+library(e1071) # Skewness and Kurtosis
+library(broom) # For residual analysis (augment())
+library(ggplot2) # Plotting
+library(sqldf) #to reformat the data
+library(dplyr) #data prep
+library(reshape2) #restructuring data
+library(psych) #for descriptive stats
+toy.r <- sqldf("SELECT Price, Age, KM, CASE WHEN FuelType = 'Diesel' THEN 0 WHEN FuelType = 'Petrol'
+               THEN 1 WHEN FuelType = 'CNG' THEN 2 END AS FuelType, HP, MetColor, Automatic, CC, Doors, Weight FROM toy")
+
+```
+Below are the descriptive statistics for the data set describing the Price, Age, KM on the car, Fuel Type, HorsePower (HP), Metallic Paint(MetColor), Transmission type (Automatic), Cubic Centimeters of engine displacement (CC), Doors and Weight. There are 10 variables in all and the table below shows their descriptive statistics: n is the number of records, sd is the standard deviation, trimmed is the trimmed mean exluding the upper and lower 5% of data, mad is the mean absolute deviation, se is the standard error. All other measures are as they are represented in the table. In the file Plots that comes with this file are the graphs that represent the data.
+```{r desc.stats, echo=FALSE}
+describe(toy.r)
+```
+
+## Linear Regression Analysis
+Below is the beginning linear regression with all variables included in the model. If the P value shown is less than .05 then the variable is significant to the model. The hypothesis test is that at least one of the variables contributes significantly to the model. As shown below, MetColor, Automatic and Doors variables have a p value greater than .05 suggesting that they do not significantly contribute to the model.
+```{r linreg, echo=FALSE}
+## begin the regression analysis using all variables
+toy.p1 <- lm(Price ~ ., data = toy.r)
+toy.p1.summary <- summary(toy.p1) # Show the results of the first model
+toy.p1.summary
+#shows hypothesis test if P value < .05 then variable is significant contributor to model
+```
+Below are the confidence levels for the given variables. 
+```{r conf, echo = FALSE}
+# get confidence intervals
+toy.p1.confint <- confint(toy.p1)
+toy.p1.confint
+```
+Below is a correlation matrix showing the extent to which the variables are correlated with Price. A value close to 1 or -1 means a perfect positive or perfect negative correlation respectively. A value of 0 suggests no correlation. As shown below, FuelType, MetColor, Automatic, CC and Doors are not shown to have a strong correlation in predicting price.
+```{r correlation, echo=FALSE}
+## Check with a correlation matrix if predictor variables are themselves related
+toy.cor <- cor(toy.r)
+toy.cor
+```
+This next test is used to find the best combination of variables, which variables are needed and which are dropped, to have the most explanatory power in predicting the price of a car. The higher the R-SQ (adj) value the better the model is for predicting price. As show below the best model (highest R-Sq Adjusted) is the 7th iteration. That model has the variables Age, KM, FuelType, HP, Automatic, CC and Weight. 
+```{r modelfit, echo=FALSE}
+x <- toy.r[,2:10] # Independent variables
+y <- toy.r[,1] # Dependent variables
+# Model selection by exhaustive search
+toy.out <- summary(regsubsets(x, y, nbest = 1, nvmax = ncol(x),force.in = NULL, force.out = NULL, method = "exhaustive"))
+toy.regtab <- cbind(toy.out$which,toy.out$rsq, toy.out$adjr2, toy.out$cp) # Stich things together
+colnames(toy.regtab) <- c("(Intercept)","Age","KM","FuelType", "HP", "MetColor", "Automatic","CC","Doors","Weight",
+                              "R-Sq", "R-Sq (adj)", "Cp") # Add header
+print(toy.regtab)
+```
+The optimal model for the given data and variables in predicting price for Toyota Corolla's is shown below, note that the Adjusted R-squared value is 0.8682 meaning we can say with 86.82% confidence that our model is accurate.
+```{r optimal, echo=FALSE}
+# optimal model is price age km fueltype hp automatic cc weight
+#create a second model with "Price","Age","KM", "FuelType","HP","Automatic", "CC", "Weight"
+#model creates the highest adjusted r2 so it is the optimal solution
+toy.2 <- data.frame(toy.r$Price,toy.r$Age, toy.r$KM, toy.r$FuelType,toy.r$HP, toy.r$Automatic, toy.r$CC,toy.r$Weight)
+colnames(toy.2) <- c("Price","Age", "KM", "FuelType","HP","Automatic", "CC", "Weight")
+#show the optimal model 
+toy.p2 <- lm(Price ~ ., data = toy.2)
+toy.p2.summary <- summary(toy.p2) 
+print(toy.p2.summary) # Show results
+```
+
+## Predicting the Price
+
+Because we live in the real world where most of the time we do not have the optimal data to feed into our optimal model we must adjust and make the best prediction possible with the given data, this case is no different. We have been asked to predict the price of a car given that it is 12 months old, uses petrol, has 185 horsepower, has metallic paint, has a standard transmission, a 2000 CC engine and 4 doors. Note that these variables are different from the optimal solution above. Because of this data we have to create a new linear regression model for the factors we are given. The new model is shown below and has an adjusted R-squared value of .8211. With this model we are able to predict with 82.11% confidence that the price of that car will be $22,772.63. 
+```{r prediction, echo=FALSE}
+############ PREDICT THE PRICE OF CAR ##############
+#model for predicting the price of the car with given data points NOT OPTIMAL
+toy.3 <- data.frame(toy.r$Price,toy.r$Age,toy.r$FuelType,toy.r$HP,toy.r$MetColor,toy.r$Automatic,toy.r$CC,toy.r$Doors)
+colnames(toy.3) <- c("Price","Age","FuelType","HP","MetColor","Automatic","CC","Doors")
+#run linear regression and print
+toy.p3 <- lm(Price ~., data=toy.3)
+toy.p3.summary <- summary(toy.p3)
+print(toy.p3.summary)
+#predict values given in hw
+price.pred <- data.frame(Age = 12, FuelType = 1, HP = 185, MetColor = 1, Automatic = 0, 
+                         CC = 2000, Doors = 4)
+predict(toy.p3,price.pred)
+```
+The confidence intervals below show the Mean Error, Root Mean Square Error and Mean Absolute Percent Error in that order.
+```{r confint,echo=FALSE}
+
+###################### CONFIDENCE INTERVALS#########################
+toy.p3.confint <- confint(toy.p3)
+print(toy.p3.confint)
+n <- length(toy.r$Price) # Get the number of elements
+diff <- dim(n) # Set the dimension of the container object
+percdiff <- dim(n) # Set the dimension of the container object
+# Create a loop to test each combination options of the elements in our data
+for (k in 1:n) {
+  train1 <- c(1:n)
+  # the R expression "train1[train1 != k]" picks from train1 those
+  # elements that are different from k and stores those elements in the
+  # object train.
+  # For k = 1, train consists of elements that are different from 1; that
+  # is 2, 3, ..., n.
+  train <- train1[train1 != k]
+  # Create the linar model for the all but one element
+  m1 <- lm(Price ~ ., data = toy.3[train,])
+  # Predict the missing value based on the model
+  pred <- predict(m1, newdat = toy.3[-train,])
+  # What is the real value
+  obs <- toy.3$Price[-train]
+  # Calculate the delta between observed and predicted
+  diff[k] <- obs - pred
+  # Calculate the relative difference between observed and predicted
+  percdiff[k] <- abs(diff[k]) / obs
+}
+```
+```{r meanE, echo=FALSE}
+toy.3.me <- mean(diff) # mean error
+toy.3.rmse <- sqrt(mean(diff**2)) # root mean square error
+toy.3.mape <- 100*(mean(percdiff)) # mean absolute percent error
+toy.3.me
+toy.3.rmse
+toy.3.mape
+```
+The Mean Error shows the fit of a data point to the line from the model. The Root Mean Square Error is the square root of the Mean Squared Error and is the distance on average of a data point from the fitted line measured vertically. The Mean Absolute Percent Error shows the percentage that the model is off from actual values. In this case the Mean Error is 1.575524. The Root Mean Square Error is 1542.013 and the Mean Absolute Error Percentage is 11.12% which means that the model predicting the cost of a Toyota developed earlier based on the data for the car available is with 11.12% of the actual price.  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
