@@ -7,6 +7,7 @@ output: pdf_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
+# Comment DK: Extra point for using a new data set, but you need to explain what the data is about and how to read it...
 ```
 
 ## Background
