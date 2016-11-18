@@ -12,7 +12,7 @@ library(reshape2) #restructuring data
 library(psych) #for descriptive stats
 library(car) # levenes test
 #read in data
-time <- read.csv("data/On_Time_On_Time_Performance_2016_8.csv")
+time <- read.csv("On_Time_On_Time_Performance_2016_8.csv")
 
 
 
@@ -183,17 +183,107 @@ cat("Number of aircraft delays: ",count.ad)
 
 
 ################################### difference in delay between carriers at SFO #########################################
+# build data set for the model 
+delay.log <- sqldf("select ArrDelay, case when Carrier = 'AA' then 1
+                                    when Carrier = 'AS' then 2
+                                    when Carrier = 'B6' then 3
+                                    when Carrier = 'DL' then 4
+                                    when Carrier = 'UA' then 5
+                                    when Carrier = 'OO' then 6
+                                    when Carrier = 'VX' then 7
+                                    when Carrier = 'WN' then 8
+                                    when Carrier = 'F9' then 9
+                                    when Carrier = 'HA' then 10
+                                    End as Carrier, DepDelay, TaxiOut, Distance, AirTime, 
+                                    CarrierDelay, WeatherDelay,
+                                    NASDelay, SecurityDelay,LateAircraftDelay
+                    from time where Origin = 'SFO'")
+
+# change all NA to 0 then write data to file for analysis
+# comment out steps to build data frame after file created
+delay.log[is.na(delay.log)] <- 0
+DelayModel <- delay.log
+rownames(DelayModel) <- NULL
+write.csv(DelayModel, file = "DelayModelFields")
+
+
+# read in formatted data for 
+pred.mod <- read.csv("DelayModelFields")
+model.dat <- pred.mod[-1]
+#model.dat$ArrDelay <- as.factor(model.dat$ArrDelay)
+
+#model selection by exhaustive search
+x <- model.dat[,2:11]
+y <- model.dat[,1]
+model.out <- summary(regsubsets(x, y, nbest = 1, nvmax = ncol(x),force.in = NULL, force.out = NULL, method = "exhaustive"))
+model.regtab <- cbind(model.out$which,model.out$rsq, model.out$adjr2, model.out$cp) # Stich things together
+colnames(model.regtab) <- c("(Intercept)","Carrier","DepDelay","TaxiOut", "Distance", "AirTime", "CarrierDelay","WeatherDelay","NASDelay",
+                            "SecurityDelay","LateAircraftDelay", "R-Sq", "R-Sq (adj)", "Cp") # Add header
+print(model.regtab)
+
+
+#linear regression
+delay.lr <- lm(ArrDelay ~ ., data = model.dat)
+delay.lr.summary <- summary(delay.lr) 
+print(delay.lr.summary) # Show results
 
 # logistic regression
-delay_model <- {DepDelay.carrier ~ .}
-delay_fit <- glm(delay_model, family=binomial, data=delay)
-print(summary(delay_fit))
-print(anova(delay_fit, test="Chisq"))
+#delay_fit <- glm(ArrDelay~., family=binomial(link='logit'), data=model.dat)
+# print(summary(delay_fit))
+#print(anova(delay_fit, test="Chisq"))
 
 
+#plot results
+#plot(delay_fit)
 
+## Linearity
+### Residual vs Fitted Plot
+plot1 <- ggplot(delay.lr, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  stat_smooth(method = "loess") +
+  geom_hline(yintercept = 0, col = "red", linetype = "dashed") +
+  xlab("Fitted values") +
+  ylab("Residuals") +
+  ggtitle("Residual vs Fitted Plot")
+plot2 <- ggplot(delay.lr, aes(x = qqnorm(.stdresid)[[1]], y = .stdresid)) +
+  geom_point(na.rm = TRUE) +
+  geom_abline() +
+  xlab("Theoretical Quantiles") +
+  ylab("Standardized Residuals") +
+  ggtitle("Normal Q-Q")
+delay.skew <- skewness(delay.lr$.resid)
+delay.kurt <- kurtosis(delay.lr$.resid)
+## Equal variance
+### Scale-Location Plot
+plot3 <- ggplot(delay.lr, aes(x = .fitted, y = sqrt(abs(.stdresid)))) +
+  geom_point(na.rm=TRUE) +
+  stat_smooth(method = "loess", na.rm = TRUE) +
+  xlab("Fitted Value") +
+  ylab(expression(sqrt("|Standardized residuals|"))) +
+  ggtitle("Scale-Location")
+## Independence
+# Perform a Durbin-Watson F-test for autocorrelation
+##toy.g.dw <- dwtest(m1)
+## Outlier influance
+### Cook's Distance Histogram
+plot4 <- ggplot(delay.lr, aes(x =.hat, y = .stdresid)) +
+  geom_point(aes(size=.cooksd), na.rm=TRUE) +
+  stat_smooth(method="loess", na.rm=TRUE) +
+  xlab("Leverage") +
+  ylab("Standardized Residuals") +
+  ggtitle("Residual vs Leverage Plot") +
+  scale_size_continuous("Cook's Distance", range = c(1,5)) +theme(legend.position="bottom")
 
+print(plot1)
+print(plot2)
+print(plot3)
+print(plot4)
 
+## Save Plots
+ggsave("linearityAssumption.pdf", plot1)
+ggsave("normalityAssumption.pdf", plot2)
+ggsave("equalVarianceAssumptions.pdf", plot3)
+ggsave("outlierInfluance1Assumptions.pdf", plot4)
 
 
 
