@@ -45,7 +45,8 @@ shinyServer(function(input, output, session) {
         positive_text <- c(positive_text, as.character(tweet$text))
         
       } else if (grepl("Boring", tweet$text, ignore.case = TRUE) | grepl("lame", tweet$text, ignore.case = TRUE)
-                 | grepl("lose",tweet$text,ignore.case=TRUE) | grepl("lost",tweet$text,ignore.case=TRUE)) { 
+                 | grepl("lose",tweet$text,ignore.case=TRUE) | grepl("lost",tweet$text,ignore.case=TRUE)
+                 | grepl("bad",tweet$text,ignore.case=TRUE)) { 
         count_negative = count_negative + 1
         
         vector_sentiments <- c(vector_sentiments, "Negative")
@@ -76,20 +77,20 @@ shinyServer(function(input, output, session) {
       if (length(positive_text) > 0){
         
         output$positive_wordcloud <- renderPlot({ wordcloud(paste(positive_text, collapse=" "), 
-        random.color=TRUE, min.freq = 0,  max.words=10 ,colors=brewer.pal(8, "Dark2")) }) 
+        random.color=TRUE, min.freq = 0,  max.words=100 ,colors=brewer.pal(8, "Dark2")) }) 
       }
       
       if (length(negative_text) > 0) {
         
         output$negative_wordcloud <- renderPlot({ wordcloud(paste(negative_text, collapse=" "), 
-        random.color=TRUE, min.freq = 0, max.words=10 ,colors=brewer.pal(8,"Set3")) }) 
+        random.color=TRUE, min.freq = 0, max.words=100 ,colors=brewer.pal(8,"Set3")) }) 
       }
       
       
       if (length(neutral_text) > 0){
         
         output$neutral_wordcloud <- renderPlot({ wordcloud(paste(neutral_text, collapse=" "), 
-       min.freq = 0, random.color=TRUE , max.words=10 ,colors=brewer.pal(8, "Dark2")) }) 
+       min.freq = 0, random.color=TRUE , max.words=100 ,colors=brewer.pal(8, "Dark2")) }) 
       }
       
     })
