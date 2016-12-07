@@ -1,10 +1,10 @@
 library(twitteR)
 library(data.table)
 
-consumer_key <- "FUFbUSgYY6flFlRdytWOj7ves"
-consumer_secret <- "t3ppSiLBymaV3wee3FPyRSV5y54fcJPCTlxFf39PiR9PX6IMyf"
-access_token <- "805179342992986112-TOt5FbDhVvP65STxe4W7ji4tW8fQ3HI"
-access_secret <- "h44vaEZaeCwYcqhoq5apbhCmka6QCRp3wBq0iTPogY2G0"
+consumer_key <- "your_consumer_key"
+consumer_secret <- "your_consumer_secret"
+access_token <- "your_acces_token"
+access_secret <- "your_access_secret"
 #This will enable the use of a local file to cache OAuth access credentials between R sessions.
 options(httr_oauth_cache=T) 
 setup_twitter_oauth(consumer_key,
