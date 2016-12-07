@@ -3,7 +3,7 @@ library(httr)
 faceURL = "https://api.projectoxford.ai/face/v1.0/detect?returnFaceId=true&returnFaceLandmarks=true&returnFaceAttributes=age,gender,smile,facialHair"
 img.url = 'http://www.buro247.com/images/Angelina-Jolie-2.jpg'
 
-faceKEY = '598e74572b9d4ad3a3ffa86ea45fbc02'
+faceKEY = 'your_ms_face_key'
 
 mybody = list(url = img.url)
 
