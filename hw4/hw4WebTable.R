@@ -44,6 +44,7 @@ nl[, c(2:5,8,9,12)] <- sapply(nl[, c(2:5,8,9,12)], as.factor)
 describe(al)
 describe(nl)
 
+# Comment DK: Your columns have the wrong data type. e.g. al$Wins is numeric, not character!
 
 
 

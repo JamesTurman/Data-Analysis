@@ -31,6 +31,8 @@ These are the descriptive statistics for the Airline Carriers and the delays ass
 setwd("C:/Users/jaturman/Desktop/804w/Midterm")
 carrier.delay <- read.csv("DelayByCarrier")
 setwd("C:/Users/jaturman/Desktop/data analysis/ops804/Midterm/data")
+# Comment DK: You dont have to set the WD twice. Just set it once and use relative filepaths...
+
 time <- read.csv("On_Time_On_Time_Performance_2016_8.csv")
 delay <- sqldf("select DepDelay,DayOfWeek,UniqueCarrier,Origin,Dest,DestState,DepTime,Cancelled,CarrierDelay, WeatherDelay, NASDelay, SecurityDelay, 
               LateAircraftDelay from time where DepDelayMinutes > 0 and Origin = 'SFO'")
@@ -107,6 +109,9 @@ for (i in delay$LateAircraftDelay){
   }
 }
 cat("Number of aircraft delays: ",count.ad)
+
+# Comment DK: You also can calculate everything in an R file ouitside the markdown file making it more reuseable...
+# Comment DK: You don't need the ANOVA, since we have population data here! 
 ```
 ##ANOVA
 Below are the results of the ANOVA showing the difference between airline carriers with regards to the average negative delay time of their flights out of SFO. This analysis is testing to see if there is a statistically signifcant difference between the mean delay time of each carrier.  If there is a statistically significant difference between the mean delay time in minutes for each carrier we would expect to see a P value < .05. As we can see below the P value is much less than .05 so we can reject the null hypothesis that there is not a significant difference between the average delay times. There is also a plot showing how the data is distributed, because the data does not look like a normal bell curve we can assume that the sample of 1000 observations for each airline is not normally distributed.
@@ -136,7 +141,11 @@ print(carrier.tukey)
 plot(carrier.tukey)
 ```
 ##Regression Analysis
-Below are the steps taken to develop a model to predict the arrival delay of a flight leaving SFO including flights that left both earlier and later than expected. The first step was to select fields that could possibly predict the arrival delay of a flight. I wanted to get as close to a 95% confidence level as possible without making the model too flexible by adding too many fields. Below is an exhaustive search of the possible model for predicting the arrival delay. The higher the R-sq (adj) value the better the model will be at predicting arrival times. As we can see below the 10th iteration of the model produces the highest R-sq (adj) value and leaves us with greater than a 95% confidence level. That model includes the carrier, departure delay, taxi out time, distance traveled, air time, carrier delay, weather delay, NAS delay, security delay and late aircraft delay. 
+Below are the steps taken to develop a model to predict the arrival delay of a flight leaving SFO including flights that left both earlier and later than expected. The first step was to select fields that could possibly predict the arrival delay of a flight. I wanted to get as close to a 95%
+[//]: # (Comment DK: I am not sure what you try to say here) 
+confidence level as possible without making the model too flexible by adding too many fields. Below is an exhaustive search of the possible model for predicting the arrival delay. The higher the R-sq (adj) value the better the model will be at predicting arrival times. As we can see below the 10th iteration of the model produces the highest R-sq (adj) value and leaves us with greater than a 95% confidence level. 
+[//]: # (Comment DK: R-sq(adj) stands for correlation - amount of explaind variability -, not for confidence intervall!)
+That model includes the carrier, departure delay, taxi out time, distance traveled, air time, carrier delay, weather delay, NAS delay, security delay and late aircraft delay. 
 ```{r predmodel,echo=FALSE}
 delay.log <- sqldf("select ArrDelay, case when Carrier = 'AA' then 1
                                     when Carrier = 'AS' then 2
@@ -173,7 +182,8 @@ colnames(model.regtab) <- c("(Intercept)","Carrier","DepDelay","TaxiOut", "Dista
 print(model.regtab)
 ```
 ###Linear Regression
-I have chosen to do a linear regression because the data is not categorical and is predicting a numerical value in terms of minutes. I am testing to see that at least one of the variables chosen contributes significantly to the model. If the P value is less than .05 then the variable is a significant contributor to the model. As shown below all of the variables contribute significantly and the overall P value of the model is 2.2e-16. The Adjusted R-squared is 0.9621 suggesting that with this model we can accurately predict arrival delay of flights leaving SFO with 96.21% confidence.    
+I have chosen to do a linear regression because the data is not categorical and is predicting a numerical value in terms of minutes. I am testing to see that at least one of the variables chosen contributes significantly to the model. If the P value is less than .05 then the variable is a significant contributor to the model. As shown below all of the variables contribute significantly and the overall P value of the model is 2.2e-16. The Adjusted R-squared is 0.9621 suggesting that with this model we can accurately predict arrival delay of flights leaving SFO with 96.21% confidence.
+[//]: # (Comment DK: You did not test the assumptions! Are they all met?)
 ```{r linreg,echo=FALSE}
 #linear regression
 delay.lr <- lm(ArrDelay ~ ., data = model.dat)
