@@ -4,8 +4,8 @@ library(wordcloud)
 library(twitteR)
 shinyServer(function(input, output, session) {
   
-  setup_twitter_oauth(consumer_key = "TyBYUZVmp9kK0RuOO7gWM67S5", 
-                      consumer_secret = "z06LS7pPIPtkPc3suUDhgsqTuwVePVaayAf6uejMkk2n0uszy8")
+  setup_twitter_oauth(consumer_key = "consumer key", 
+                      consumer_secret = "consumer secret")
   
   token <- get("oauth_token", twitteR:::oauth_cache)
   token$cache()
@@ -36,15 +36,15 @@ shinyServer(function(input, output, session) {
       
       vector_users <- c(vector_users, as.character(tweet$screenName));
       
-      if (grepl("Good", tweet$text, ignore.case = TRUE) == TRUE | 
-        grepl("fun", tweet$text, ignore.case = TRUE) | grepl("Awesome", tweet$text, ignore.case = TRUE) |
+      if (grepl("good", tweet$text, ignore.case = TRUE) == TRUE | 
+        grepl("fun", tweet$text, ignore.case = TRUE) | grepl("awesome", tweet$text, ignore.case = TRUE) |
         grepl("great", tweet$text, ignore.case=TRUE)| grepl("win",tweet$text,ignore.case=TRUE)){
         count_positive = count_positive + 1
         
         vector_sentiments <- c(vector_sentiments, "Positive")
         positive_text <- c(positive_text, as.character(tweet$text))
         
-      } else if (grepl("Boring", tweet$text, ignore.case = TRUE) | grepl("lame", tweet$text, ignore.case = TRUE)
+      } else if (grepl("boring", tweet$text, ignore.case = TRUE) | grepl("lame", tweet$text, ignore.case = TRUE)
                  | grepl("lose",tweet$text,ignore.case=TRUE) | grepl("lost",tweet$text,ignore.case=TRUE)
                  | grepl("bad",tweet$text,ignore.case=TRUE)) { 
         count_negative = count_negative + 1
