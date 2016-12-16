@@ -4,11 +4,21 @@ library(wordcloud)
 library(twitteR)
 shinyServer(function(input, output, session) {
   
-  setup_twitter_oauth(consumer_key = "consumer key", 
-                      consumer_secret = "consumer secret")
+  #setup_twitter_oauth(consumer_key = "uqS7pWqWbDAjDG9ciwfEq37u5", 
+  #                    consumer_secret = "tBO4rmGAGPtg76Tu05hpnzvMpKfIJiEUIxcpRsO7oYeYD7n26y")
+  
+  # Comment DK: You probably wanted to do it this way...
+  consumerKey <- "[your Twitter consumer key]"
+  consumerSecret <- "[your Twitter consumer secret]"
+  accessToken <- "[your Twitter access token]"
+  accessTokenSecret <- "[your Twitter access token secret]"
+  
+  setup_twitter_oauth(consumerKey, consumerSecret, accessToken, accessTokenSecret)
   
   token <- get("oauth_token", twitteR:::oauth_cache)
   token$cache()
+  
+  
   
   output$currentTime <- renderText({invalidateLater(1000, session) 
     paste("Current time is: ",Sys.time())})
