@@ -21,7 +21,7 @@ for(i in 1:length(files)){
   # Write the results into the database
   dbWriteTable(flight.db, name = "connections", fl, append = TRUE)
   
-  #   # Clean up the extracted files
+  # Clean up the extracted files
   file.remove(c(gsub(".zip", replacement = ".csv", x = files[i]), "data/readme.html"))
 }
 
