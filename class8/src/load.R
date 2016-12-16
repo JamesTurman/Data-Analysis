@@ -5,8 +5,6 @@ if(!exists("flight.db")){
   source("src/connectDB.R")
 }
 
-################################## From Justin ###################
-
 #list all files in directory
 files <- list.files(path = "data", full.names = TRUE)
 
