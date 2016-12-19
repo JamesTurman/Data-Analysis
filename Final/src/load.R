@@ -1,3 +1,4 @@
+# load libraries
 library(data.table)
 
 # load db connector if not there
@@ -5,11 +6,10 @@ if(!exists("flight.db")){
   source("src/connectDB.R")
 }
 
-################################## From Justin ###################
-
 #list all files in directory
 files <- list.files(path = "data", full.names = TRUE)
 
+# function to unzip read into R write to AWS and delete read me
 for(i in 1:length(files)){
   sprintf("Processing file %s", files[i])
   
@@ -23,7 +23,7 @@ for(i in 1:length(files)){
   # Write the results into the database
   dbWriteTable(flight.db, name = "connections", fl, append = TRUE)
   
-  #   # Clean up the extracted files
+  # Clean up the extracted files
   file.remove(c(gsub(".zip", replacement = ".csv", x = files[i]), "data/readme.html"))
 }
 
