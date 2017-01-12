@@ -176,25 +176,3 @@ ggsave("normalityAssumption.pdf", plot2)
 ggsave("equalVarianceAssumptions.pdf", plot3)
 ggsave("outlierInfluance1Assumptions.pdf", plot4)
 ggsave("outlierInfluance2Assumptions.pdf", plot5)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
